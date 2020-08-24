@@ -1,0 +1,64 @@
+function generateBmp(data){
+    /**
+     * sig data: "96,265^110,254^125,239^144,216^157,194^~"
+     *           x1,y1^x2,y2^...^xn,yn^~
+     * 
+     * algorithm:
+     *      1. get x array and y array
+     *      2. get minx and miny
+     *      3. use ctx to draw lines between each point
+     */
+    var c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+    
+    var div = "^";
+    // data: for testing purpose. 
+    // var data = "96,265^110,254^125,239^144,216^157,194^165,173^165,149^162,132^154,129^142,135^130,147^120,170^115,192^118,209^130,226^144,236^158,238^177,226^194,209^202,192^208,177^208,183^204,200^197,216^185,233^173,240^165,237^160,223^164,202^176,181^193,166^212,159^238,160^260,166^268,175^271,188^267,198^260,205^0,65535^~";
+    var signature_divide = data.split(div);
+    var x;
+    var y;
+    var x_y;
+
+    var margin = 10;
+    var minx = 65535;
+    var miny = 65535;
+
+    // get
+    for (i = 0; i < signature_divide.length - 1; i++) {
+        x_y = signature_divide[i];
+        pos = x_y.indexOf(",");
+        x = x_y.substring(0, pos);
+        y = x_y.substring(pos + 1);
+        if (parseInt(y) == 65535)
+            continue;
+        minx = Math.min(minx, x);
+        miny = Math.min(miny, y);
+    }
+
+    // start from second point
+    // draw line between current point and the previous point
+    for (i = 1; i < signature_divide.length - 1; i++) {
+        x_y = signature_divide[i - 1];
+        pos = x_y.indexOf(",");
+        x = x_y.substring(0, pos);
+        y = x_y.substring(pos + 1);
+        if (parseInt(y) == 65535)
+            continue;
+        p1x = parseInt(x) + margin - minx;
+        p1y = parseInt(y) + margin - miny;
+
+        x_y = signature_divide[i];
+        pos = x_y.indexOf(",");
+        x = x_y.substring(0, pos);
+        y = x_y.substring(pos + 1);
+        if (parseInt(y) == 65535)
+            continue;
+        p2x = parseInt(x) + margin - minx;
+        p2y = parseInt(y) + margin - miny;
+
+        ctx.beginPath();
+        ctx.moveTo(parseInt(p1x), parseInt(p1y));
+        ctx.lineTo(parseInt(p2x), parseInt(p2y));
+        ctx.stroke();
+    }
+}
